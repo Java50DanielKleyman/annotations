@@ -23,7 +23,7 @@ public class SchemaProperties {
 				idField = field;
 				idField.setAccessible(true);
 			} else if (idField != null && field.isAnnotationPresent(Id.class)) {
-				throw new IllegalStateException("“Field Id must be one");
+				throw new IllegalStateException("Field Id must be one");
 			}
 		}
 		if (idField == null) {
