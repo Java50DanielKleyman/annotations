@@ -1,34 +1,34 @@
 package telran.reflect;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 public class SchemaProperties {
 	public static void displayFieldProperties(Object obj) throws Exception {
-		Method[] methods = obj.getClass().getDeclaredMethods();
-		Method getIdField = getIdField(methods);
-		getIdField.invoke(obj);
-		for (Method method : methods) {
-			if (method.isAnnotationPresent(Index.class)) {
-				method.setAccessible(true);
-				method.invoke(obj);
+		Field[] fields = obj.getClass().getDeclaredFields();
+		Field iddField = getIdField(fields);
+		System.out.println("Person normal id: " + iddField.get(obj));
+		for (int i = 1; i <= fields.length; i++) {
+			if (fields[i - 1].isAnnotationPresent(Index.class)) {
+				fields[i - 1].setAccessible(true);
+				System.out.println("Person normal field " + i + ": " + fields[i - 1].get(obj));
 			}
 		}
 
 	}
 
-	private static Method getIdField(Method[] methods) throws Exception {
-		Method getIdField = null;
-		for (Method method : methods) {
-			if (getIdField == null && method.isAnnotationPresent(Id.class)) {
-				getIdField = method;
-				method.setAccessible(true);
-			} else if (getIdField != null && method.isAnnotationPresent(Id.class)) {
+	private static Field getIdField(Field[] fields) throws Exception {
+		Field idField = null;
+		for (Field field : fields) {
+			if (idField == null && field.isAnnotationPresent(Id.class)) {
+				idField = field;
+				idField.setAccessible(true);
+			} else if (idField != null && field.isAnnotationPresent(Id.class)) {
 				throw new IllegalStateException("“Field Id must be one");
 			}
 		}
-		if (getIdField == null) {
+		if (idField == null) {
 			throw new IllegalStateException("No field Id found");
 		}
-		return getIdField;
+		return idField;
 	}
 }
