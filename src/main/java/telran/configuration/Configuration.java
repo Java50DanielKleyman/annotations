@@ -16,7 +16,7 @@ public class Configuration {
 	// TODO for HW #51
 	public Configuration(Object configObj, String configFile) throws Exception {
 		this.configObj = configObj;
-		this.configFile = configFile;
+		this.configFile = configFile != null ? configFile : DEFAULT_CONFIG_FILE;
 		// TODO
 		/* prototype */
 		// Properties properties = new Properties();
@@ -39,37 +39,27 @@ public class Configuration {
 		// value structure: <property name>:<default value>
 		Object value = getValue(valueAnnotation.value(), field.getType().getSimpleName().toLowerCase());
 		setValue(field, value);
-
 	}
 
 	private Object getValue(String value, String typeName) {
-		// TODO complete method is HW #51
 		String[] tokens = value.split(":");
 		String propertyName = tokens[0];
-		String propertyValue = getPropertyValue(propertyName);
-		String defaultValue = tokens[1];
-		if (propertyValue == null && defaultValue != null) {
-			propertyValue = defaultValue;
-		}
-
-		// TODO if no property in configuration file and no default value, then an
-		// exception should be thrown
+		String propertyValue = getPropertyValue(propertyName, tokens[1]);
 		try {
 			Method method = getClass().getDeclaredMethod(typeName + "Convertion", String.class);
-			return method.invoke(this, propertyValue); // FIXME for HW #51
+			return method.invoke(this, propertyValue);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
 	}
 
-	private String getPropertyValue(String propertyName) {
-		String propertiesFile = configFile != null ? configFile : DEFAULT_CONFIG_FILE;
+	private String getPropertyValue(String propertyName, String defaultValue) {
 		String propertyValue = null;
 		Properties properties = new Properties();
-		try (FileInputStream input = new FileInputStream(propertiesFile)) {
+		try (FileInputStream input = new FileInputStream(configFile)) {
 			properties.load(input);
-			propertyValue = properties.getProperty(propertyName);
+			propertyValue = properties.getProperty(propertyName, defaultValue);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
