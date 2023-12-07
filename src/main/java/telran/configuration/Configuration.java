@@ -12,11 +12,13 @@ public class Configuration {
 	private static final String DEFAULT_CONFIG_FILE = "application.properties";
 	Object configObj;
 	String configFile;
+	Properties properties;
 
 	// TODO for HW #51
 	public Configuration(Object configObj, String configFile) throws Exception {
 		this.configObj = configObj;
 		this.configFile = configFile != null ? configFile : DEFAULT_CONFIG_FILE;
+		loadProperties();
 		// TODO
 		/* prototype */
 		// Properties properties = new Properties();
@@ -27,6 +29,15 @@ public class Configuration {
 
 	public Configuration(Object configObject) throws Exception {
 		this(configObject, DEFAULT_CONFIG_FILE);
+	}
+
+	private void loadProperties() {
+		properties = new Properties();
+		try (FileInputStream input = new FileInputStream(configFile)) {
+			properties.load(input);
+		} catch (Exception e) {
+			throw new RuntimeException("Error loading properties file", e);
+		}
 	}
 
 	public void configInjection() {
@@ -57,21 +68,12 @@ public class Configuration {
 
 	private String getPropertyValue(String propertyName, String defaultValue) {
 		String propertyValue = null;
-		Properties properties = new Properties();
-		try (FileInputStream input = new FileInputStream(configFile)) {
-			properties.load(input);
-			propertyValue = (defaultValue != null) ? properties.getProperty(propertyName, defaultValue)
-					: properties.getProperty(propertyName);
-			if (propertyValue == null) {
-				throw new RuntimeException("Property value is null for propertyName: " + propertyName);
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		propertyValue = (defaultValue != null) ? properties.getProperty(propertyName, defaultValue)
+				: properties.getProperty(propertyName);
+		if (propertyValue == null) {
+			throw new RuntimeException("Property value is null for propertyName: " + propertyName);
 		}
+
 		return propertyValue;
 	}
 
