@@ -44,7 +44,8 @@ public class Configuration {
 	private Object getValue(String value, String typeName) {
 		String[] tokens = value.split(":");
 		String propertyName = tokens[0];
-		String propertyValue = getPropertyValue(propertyName, tokens[1]);
+		String defaultValue = tokens[1];
+		String propertyValue = getPropertyValue(propertyName, defaultValue);
 		try {
 			Method method = getClass().getDeclaredMethod(typeName + "Convertion", String.class);
 			return method.invoke(this, propertyValue);
@@ -59,7 +60,11 @@ public class Configuration {
 		Properties properties = new Properties();
 		try (FileInputStream input = new FileInputStream(configFile)) {
 			properties.load(input);
-			propertyValue = properties.getProperty(propertyName, defaultValue);
+			propertyValue = (defaultValue != null) ? properties.getProperty(propertyName, defaultValue)
+					: properties.getProperty(propertyName);
+			if (propertyValue == null) {
+				throw new RuntimeException("Property value is null for propertyName: " + propertyName);
+			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
